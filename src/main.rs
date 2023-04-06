@@ -31,7 +31,10 @@ fn main() {
     println!("Searching for {}", config.query);
     println!("In file {}", config.filename);
 
-    run(config);
+    if let Err(e) = run(config) {
+        println!("Application Error: {}", e);
+        process::exit(1);
+    }
 }
 
 struct Config {
@@ -60,15 +63,19 @@ impl Config{
 // }
 // DEL END
 
-// ADD START run関数の抽出
 /// ファイル操作
-fn run(config: Config) {
+/// エラー時はエラーのトレイトオブジェクトを返すよう修正
+fn run(config: Config) -> Result<(), Box<dyn Error>>{
     // ファイルのオープンに失敗
-    let mut f = File::open(config.filename).expect("File open error");
+    let mut f = File::open(config.filename)?;
 
     let mut contents = String::new();
-    f.read_to_string(&mut contents).expect("something went wrong reading the file");
+    f.read_to_string(&mut contents)?;
 
+    println!("With text:");
     println!("{}", contents);
+
+    // このように返り値をユニット型で返すのは、
+    // 関数が副作用のためだけに呼び出されていることを示唆する慣習的な方法
+    Ok(())
 }
-// ADD END
