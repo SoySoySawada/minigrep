@@ -34,3 +34,37 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>>{
     // 関数が副作用のためだけに呼び出されていることを示唆する慣習的な方法
     Ok(())
 }
+
+#[cfg(test)]
+mod tests{
+    use super::*;
+
+    #[test]
+    fn config_new() {
+        let args = vec![
+            String::from("target/debug/minigrep"),
+            String::from("query"),
+            String::from("filename"),
+        ];
+        let config = Config::new(&args).unwrap();
+        assert_eq!(config.query, "query", "Config::new made structure property error (query)");
+        assert_eq!(config.filename, "filename", "Config::new made structure property error (filename)");
+    }
+
+    #[test]
+    fn config_new_args_less() {
+        let args = vec![
+            String::from("target/debug/minigrep"),
+        ];
+        let config = Config::new(&args);
+        assert!(config.is_err(), "Config::new could not detect args less{:?}", args);
+
+        let args2 = vec![
+            String::from("target/debug/minigrep"),
+            String::from("query"),
+        ];
+        let config = Config::new(&args2);
+        assert!(config.is_err(), "Config::new could not detect args less{:?}", args2);
+    }
+
+}
