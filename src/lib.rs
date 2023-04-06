@@ -35,6 +35,10 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>>{
     Ok(())
 }
 
+fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+    vec![]
+}
+
 #[cfg(test)]
 mod tests{
     use super::*;
@@ -65,6 +69,21 @@ mod tests{
         ];
         let config = Config::new(&args2);
         assert!(config.is_err(), "Config::new could not detect args less{:?}", args2);
+    }
+
+    /// まずは空の関数、失敗するテスト(目指す結果)を記述する。
+    #[test]
+    fn search_one_result(){
+        let query = "duct";
+        let contents = "\
+        Rust:
+        safe, fast, productive.
+        Pick three.";
+
+        assert_eq!(
+            vec!["safe, fast, productive."],
+            search(query, contents)
+        );
     }
 
 }
