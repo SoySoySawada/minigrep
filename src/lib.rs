@@ -27,8 +27,9 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>>{
     let mut contents = String::new();
     f.read_to_string(&mut contents)?;
 
-    println!("With text:");
-    println!("{}", contents);
+    for line in search(&config.query, &contents){
+        println!("{}", line);
+    }
 
     // このように返り値をユニット型で返すのは、
     // 関数が副作用のためだけに呼び出されていることを示唆する慣習的な方法
