@@ -1,8 +1,10 @@
+// ライブラリクレートをバイナリクレートに持ってくるため
+extern crate minigrep;
+
 use std::env;
-use std::fs::File;
-use std::io::prelude::*;
 use std::process;
-use std::error::Error;
+
+use minigrep::Config;
 
 /// バイナリプロジェクトの責任の分離
 /// プログラムをmain.rsとlib.rsに分け、ロジックをlib.rsに移動。
@@ -31,51 +33,8 @@ fn main() {
     println!("Searching for {}", config.query);
     println!("In file {}", config.filename);
 
-    if let Err(e) = run(config) {
+    if let Err(e) = minigrep::run(config) {
         println!("Application Error: {}", e);
         process::exit(1);
     }
-}
-
-struct Config {
-    query: String,
-    filename: String,
-}
-
-impl Config{
-    fn new(args: &[String]) -> Result<Config, &'static str> {
-        if args.len() < 3 {
-            return Err("not enough arguments");
-        }
-        let query = args[1].clone();
-        let filename = args[2].clone();
-        Ok(Config { query, filename })
-    }
-}
-
-// DEL START 抽出メソッドをConfig構造体のnew関数に移動
-// /// 引数解析器の抽出
-// /// 1番目の引数と2番目の引数を抽出する
-// fn parse_config(args: &[String]) -> (&str, &str) {
-//     let query = &args[1];
-//     let filename = &args[2];
-//     (query, filename)
-// }
-// DEL END
-
-/// ファイル操作
-/// エラー時はエラーのトレイトオブジェクトを返すよう修正
-fn run(config: Config) -> Result<(), Box<dyn Error>>{
-    // ファイルのオープンに失敗
-    let mut f = File::open(config.filename)?;
-
-    let mut contents = String::new();
-    f.read_to_string(&mut contents)?;
-
-    println!("With text:");
-    println!("{}", contents);
-
-    // このように返り値をユニット型で返すのは、
-    // 関数が副作用のためだけに呼び出されていることを示唆する慣習的な方法
-    Ok(())
 }
