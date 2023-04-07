@@ -5,6 +5,7 @@ use std::error::Error;
 pub struct Config {
     pub query: String,
     pub filename: String,
+    pub case_sensitive: bool,
 }
 
 impl Config{
@@ -14,7 +15,12 @@ impl Config{
         }
         let query = args[1].clone();
         let filename = args[2].clone();
-        Ok(Config { query, filename })
+
+        // 環境変数を取得
+        let case_sensitive = std::env::var("CASE_INSENSITIVE").is_err();
+        println!("case_sensitive: {}", case_sensitive);
+
+        Ok(Config { query, filename, case_sensitive })
     }
 }
 
@@ -27,7 +33,13 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>>{
     let mut contents = String::new();
     f.read_to_string(&mut contents)?;
 
-    for line in search(&config.query, &contents){
+    let results = if config.case_sensitive == true {
+        search(&config.query, &contents)
+    } else {
+        search_case_insensitive(&config.query, &contents)
+    };
+
+    for line in results{
         println!("{}", line);
     }
 
@@ -42,6 +54,20 @@ fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
     // lines()を使用し、contentsを行ごとに分割
     for line in contents.lines(){
         if line.contains(query){
+            result.push(line);
+        }
+    }
+    result
+}
+
+/// 大文字小文字を区別しない検索
+fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+    let query = query.to_lowercase();
+    let mut result:Vec<&str> = Vec::new();
+
+    // lines()を使用し、contentsを行ごとに分割
+    for line in contents.lines(){
+        if line.to_lowercase().contains(&query){
             result.push(line);
         }
     }
@@ -82,16 +108,34 @@ mod tests{
 
     /// まずは空の関数、失敗するテスト(目指す結果)を記述する。
     #[test]
-    fn search_one_result(){
+    fn search_case_sensitive(){
         let query = "duct";
         let contents = "\
 Rust:
 safe, fast, productive.
+Duct tape
 Pick three.";
 
         assert_eq!(
             vec!["safe, fast, productive."],
             search(query, contents)
+        );
+    }
+
+    /// 大文字・小文字無視を実装したときのテストを記述
+    #[test]
+    fn search_test_case_insensitive(){
+        let query = "rUsT";
+        let contents = "\
+Rust:
+safe, fast, productive.
+Duct tape
+Trust me
+Pick three.";
+
+        assert_eq!(
+            vec!["Rust:", "Trust me"],
+            search_case_insensitive(query, contents)
         );
     }
 
