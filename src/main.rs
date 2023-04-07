@@ -24,7 +24,8 @@ fn main() {
     // UPD START Configでの抽出
     // let (query, filename) = parse_config(&args);
     let config = Config::new(&args).unwrap_or_else(|err| {
-        println!("Problem parsing arguments: {}", err);
+        // eprintlnを使用すると、標準エラー出力に出力される(> output.txtとしてもoutput.txtに出力されない)
+        eprintln!("Problem parsing arguments: {}", err);
         process::exit(1);
     });
     // UPD END
@@ -35,7 +36,7 @@ fn main() {
     println!();
 
     if let Err(e) = minigrep::run(config) {
-        println!("Application Error: {}", e);
+        eprintln!("Application Error: {}", e);
         process::exit(1);
     }
 }

@@ -16,8 +16,18 @@ impl Config{
         let query = args[1].clone();
         let filename = args[2].clone();
 
-        // 環境変数を取得
-        let case_sensitive = std::env::var("CASE_INSENSITIVE").is_err();
+        let case_sensitive: bool;
+        if args.len() >= 4 {
+            if args[3] == "0" {
+                case_sensitive = false;
+            }else {
+                case_sensitive = true;
+            }
+        }else{
+            // 環境変数を取得
+            case_sensitive = std::env::var("CASE_INSENSITIVE").is_err();
+        }
+        
         println!("case_sensitive: {}", case_sensitive);
 
         Ok(Config { query, filename, case_sensitive })
@@ -104,6 +114,31 @@ mod tests{
         ];
         let config = Config::new(&args2);
         assert!(config.is_err(), "Config::new could not detect args less{:?}", args2);
+    }
+
+    #[test]
+    fn config_new_caseinsensitive(){
+        let args = vec![
+            String::from("target/debug/minigrep"),
+            String::from("query"),
+            String::from("filename"),
+            String::from("0"),
+        ];
+        let config = Config::new(&args).unwrap();
+        assert_eq!(config.query, "query", "Config::new made structure property error (query)");
+        assert_eq!(config.filename, "filename", "Config::new made structure property error (filename)");
+        assert_eq!(config.case_sensitive, false, "Config::new made structure property error (case_sensitive)");
+
+        let args = vec![
+            String::from("target/debug/minigrep"),
+            String::from("query"),
+            String::from("filename"),
+            String::from("1"),
+        ];
+        let config = Config::new(&args).unwrap();
+        assert_eq!(config.query, "query", "Config::new made structure property error (query)");
+        assert_eq!(config.filename, "filename", "Config::new made structure property error (filename)");
+        assert_eq!(config.case_sensitive, true, "Config::new made structure property error (case_sensitive)");
     }
 
     /// まずは空の関数、失敗するテスト(目指す結果)を記述する。
