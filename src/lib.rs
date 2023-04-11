@@ -69,15 +69,10 @@ fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
 /// 大文字小文字を区別しない検索
 fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
     let query = query.to_lowercase();
-    let mut result:Vec<&str> = Vec::new();
-
-    // lines()を使用し、contentsを行ごとに分割
-    for line in contents.lines(){
-        if line.to_lowercase().contains(&query){
-            result.push(line);
-        }
-    }
-    result
+    
+    contents.lines()
+    .filter(|line| line.to_lowercase().contains(&query))
+    .collect()
 }
 
 #[cfg(test)]
