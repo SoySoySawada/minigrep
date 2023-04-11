@@ -17,13 +17,15 @@ use minigrep::Config;
 /// ・lib.rsのrun関数を呼び出す
 /// ・runがエラーを返したときに処理する
 fn main() {
-    // env::args()関数で、コマンドライン引数のイテレータを取得
-    // collect()にて、それをコレクションに変換
-    let args: Vec<String> = env::args().collect();
+    // DEL START イテレータを使用して、コマンドライン引数を取得
+    // // env::args()関数で、コマンドライン引数のイテレータを取得
+    // // collect()にて、それをコレクションに変換
+    // let args: Vec<String> = env::args().collect();
+    // DEL END
     
     // UPD START Configでの抽出
     // let (query, filename) = parse_config(&args);
-    let config = Config::new(&args).unwrap_or_else(|err| {
+    let config = Config::new(env::args()).unwrap_or_else(|err| {
         // eprintlnを使用すると、標準エラー出力に出力される(> output.txtとしてもoutput.txtに出力されない)
         eprintln!("Problem parsing arguments: {}", err);
         process::exit(1);
