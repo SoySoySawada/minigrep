@@ -25,7 +25,7 @@ impl Config{
 
         let case_sensitive = match args.next(){
             Some(arg) if arg == "0" => false,
-            Some(arg) => true,
+            Some(_) => true,
             None => std::env::var("CASE_INSENSITIVE").is_err(),
         };
         
@@ -60,15 +60,10 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>>{
 }
 
 fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let mut result:Vec<&str> = Vec::new();
-
-    // lines()を使用し、contentsを行ごとに分割
-    for line in contents.lines(){
-        if line.contains(query){
-            result.push(line);
-        }
-    }
-    result
+    // 検索処理の実装もイテレータを使用したものに更新
+    contents.lines()
+    .filter(|line| line.contains(query))
+    .collect()
 }
 
 /// 大文字小文字を区別しない検索
